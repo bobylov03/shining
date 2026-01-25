@@ -2,22 +2,34 @@
 // DOM Ready Function
 // =========================================
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('Shining Strings - Initializing...');
+    
+    // Основные функции
     initializeMobileMenu();
-    initializeRepertoireTabs();
-    initializeAudioPlayers();
-    initializeFormValidation();
     initializeSmoothScrolling();
     initializeHeaderScrollEffect();
-    initializeCurrentYear();
-    initializeFormSubmission();
-    initializeTestimonialSlider();
-    initializeFAQAccordion();
-    initializeStatsCounter();
     initializeBackToTop();
-    initializeWhatsAppButton();
+    initializeCurrentYear();
+    
+    // Контент и анимации
+    initializeStatsCounter();
+    initializeTestimonialSlider();
+    initializeFAQAccordion(); // Убедимся, что это вызывается
     initializeScrollAnimations();
     initializeVideoLazyLoading();
+    
+    // Формы и контакты
+    initializeFormValidation();
+    initializeFormSubmission();
+    initializeWhatsAppButton();
     initializePrivacyPolicyModal();
+    initializeNewsletterForm();
+    
+    // Устаревшие функции (если есть)
+    initializeRepertoireTabs();
+    initializeAudioPlayers();
+    
+    console.log('Shining Strings - Initialization complete');
 });
 
 // =========================================
@@ -31,7 +43,8 @@ function initializeMobileMenu() {
     if (!mobileMenuBtn || !navLinks) return;
     
     // Toggle mobile menu
-    mobileMenuBtn.addEventListener('click', function() {
+    mobileMenuBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
         navLinks.classList.toggle('active');
         const isExpanded = navLinks.classList.contains('active');
         this.setAttribute('aria-expanded', isExpanded);
@@ -69,6 +82,16 @@ function initializeMobileMenu() {
             document.body.style.overflow = '';
         }
     });
+    
+    // Close menu with Escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && navLinks.classList.contains('active')) {
+            navLinks.classList.remove('active');
+            mobileMenuBtn.querySelector('i').classList.replace('fa-times', 'fa-bars');
+            mobileMenuBtn.setAttribute('aria-expanded', 'false');
+            document.body.style.overflow = '';
+        }
+    });
 }
 
 // =========================================
@@ -89,8 +112,8 @@ function initializeStatsCounter() {
             if (entry.isIntersecting) {
                 const stat = entry.target;
                 const target = parseInt(stat.getAttribute('data-count'));
-                const duration = 2000; // 2 seconds
-                const step = target / (duration / 16); // 60fps
+                const duration = 2000;
+                const step = target / (duration / 16);
                 let current = 0;
                 
                 const timer = setInterval(() => {
@@ -124,6 +147,7 @@ function initializeTestimonialSlider() {
     
     let currentSlide = 0;
     const slideCount = slides.length;
+    let slideInterval;
     
     function showSlide(index) {
         // Hide all slides
@@ -140,7 +164,9 @@ function initializeTestimonialSlider() {
         slides[index].style.display = 'block';
         
         // Activate current dot
-        dots[index].classList.add('active');
+        if (dots[index]) {
+            dots[index].classList.add('active');
+        }
         
         currentSlide = index;
     }
@@ -155,83 +181,192 @@ function initializeTestimonialSlider() {
         showSlide(currentSlide);
     }
     
+    function startAutoSlide() {
+        slideInterval = setInterval(nextSlide, 5000);
+    }
+    
+    function stopAutoSlide() {
+        if (slideInterval) {
+            clearInterval(slideInterval);
+        }
+    }
+    
     // Initialize first slide
     showSlide(0);
-    
-    // Auto-advance slides every 5 seconds
-    let slideInterval = setInterval(nextSlide, 5000);
+    startAutoSlide();
     
     // Pause auto-advance on hover
     const sliderContainer = document.querySelector('.testimonials-slider');
     if (sliderContainer) {
-        sliderContainer.addEventListener('mouseenter', () => {
-            clearInterval(slideInterval);
-        });
+        sliderContainer.addEventListener('mouseenter', stopAutoSlide);
+        sliderContainer.addEventListener('mouseleave', startAutoSlide);
         
-        sliderContainer.addEventListener('mouseleave', () => {
-            slideInterval = setInterval(nextSlide, 5000);
+        // For touch devices
+        sliderContainer.addEventListener('touchstart', stopAutoSlide);
+        sliderContainer.addEventListener('touchend', () => {
+            setTimeout(startAutoSlide, 3000);
         });
     }
     
     // Event listeners for buttons
-    if (nextBtn) nextBtn.addEventListener('click', nextSlide);
-    if (prevBtn) prevBtn.addEventListener('click', prevSlide);
+    if (nextBtn) {
+        nextBtn.addEventListener('click', () => {
+            stopAutoSlide();
+            nextSlide();
+            setTimeout(startAutoSlide, 5000);
+        });
+    }
+    
+    if (prevBtn) {
+        prevBtn.addEventListener('click', () => {
+            stopAutoSlide();
+            prevSlide();
+            setTimeout(startAutoSlide, 5000);
+        });
+    }
     
     // Event listeners for dots
     dots.forEach((dot, index) => {
         dot.addEventListener('click', () => {
-            clearInterval(slideInterval);
+            stopAutoSlide();
             showSlide(index);
-            slideInterval = setInterval(nextSlide, 5000);
+            setTimeout(startAutoSlide, 5000);
         });
     });
     
     // Keyboard navigation
     document.addEventListener('keydown', (e) => {
-        if (e.key === 'ArrowLeft') prevSlide();
-        if (e.key === 'ArrowRight') nextSlide();
+        if (e.key === 'ArrowLeft') {
+            stopAutoSlide();
+            prevSlide();
+            setTimeout(startAutoSlide, 5000);
+        }
+        if (e.key === 'ArrowRight') {
+            stopAutoSlide();
+            nextSlide();
+            setTimeout(startAutoSlide, 5000);
+        }
     });
 }
 
 // =========================================
-// FAQ Accordion
+// FAQ Accordion - ИСПРАВЛЕННАЯ ФУНКЦИЯ
 // =========================================
 function initializeFAQAccordion() {
+    console.log('Initializing FAQ Accordion...');
+    
     const faqItems = document.querySelectorAll('.faq-item');
     
-    if (!faqItems.length) return;
+    if (!faqItems.length) {
+        console.log('No FAQ items found');
+        return;
+    }
     
+    console.log(`Found ${faqItems.length} FAQ items`);
+    
+    // Сначала закроем все FAQ, кроме первого
+    faqItems.forEach((item, index) => {
+        const answer = item.querySelector('.faq-answer');
+        if (answer) {
+            if (index === 0) {
+                // Первый FAQ открыт по умолчанию
+                item.classList.add('active');
+                answer.style.maxHeight = answer.scrollHeight + 'px';
+            } else {
+                item.classList.remove('active');
+                answer.style.maxHeight = '0';
+            }
+        }
+    });
+    
+    // Добавляем обработчики событий
     faqItems.forEach(item => {
         const question = item.querySelector('.faq-question');
         
-        question.addEventListener('click', () => {
-            // Close all other items
+        if (!question) {
+            console.warn('FAQ item missing question element');
+            return;
+        }
+        
+        // Удаляем старые обработчики (если есть)
+        const newQuestion = question.cloneNode(true);
+        question.parentNode.replaceChild(newQuestion, question);
+        
+        // Добавляем новый обработчик
+        newQuestion.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            console.log('FAQ clicked:', item);
+            
+            // Закрываем все другие FAQ
             faqItems.forEach(otherItem => {
                 if (otherItem !== item && otherItem.classList.contains('active')) {
                     otherItem.classList.remove('active');
-                    const answer = otherItem.querySelector('.faq-answer');
-                    answer.style.maxHeight = '0';
+                    const otherAnswer = otherItem.querySelector('.faq-answer');
+                    if (otherAnswer) {
+                        otherAnswer.style.maxHeight = '0';
+                    }
                 }
             });
             
-            // Toggle current item
+            // Переключаем текущий FAQ
+            const wasActive = item.classList.contains('active');
             item.classList.toggle('active');
-            const answer = item.querySelector('.faq-answer');
             
-            if (item.classList.contains('active')) {
-                answer.style.maxHeight = answer.scrollHeight + 'px';
-            } else {
-                answer.style.maxHeight = '0';
+            const answer = item.querySelector('.faq-answer');
+            if (answer) {
+                if (wasActive) {
+                    // Закрываем
+                    answer.style.maxHeight = '0';
+                } else {
+                    // Открываем
+                    answer.style.maxHeight = answer.scrollHeight + 'px';
+                }
+            }
+            
+            // Анимация иконки
+            const icon = newQuestion.querySelector('i');
+            if (icon) {
+                if (item.classList.contains('active')) {
+                    icon.style.transform = 'rotate(180deg)';
+                } else {
+                    icon.style.transform = 'rotate(0deg)';
+                }
+            }
+        });
+        
+        // Добавляем обработчик для клавиатуры
+        newQuestion.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                newQuestion.click();
+            }
+        });
+        
+        // Устанавливаем атрибуты доступности
+        newQuestion.setAttribute('role', 'button');
+        newQuestion.setAttribute('tabindex', '0');
+        newQuestion.setAttribute('aria-expanded', item.classList.contains('active'));
+    });
+    
+    // Обновляем атрибуты доступности при изменении
+    const observer = new MutationObserver((mutations) => {
+        mutations.forEach(mutation => {
+            if (mutation.attributeName === 'class') {
+                const question = mutation.target.querySelector('.faq-question');
+                if (question) {
+                    question.setAttribute('aria-expanded', mutation.target.classList.contains('active'));
+                }
             }
         });
     });
     
-    // Open first FAQ by default
-    if (faqItems.length > 0) {
-        faqItems[0].classList.add('active');
-        const firstAnswer = faqItems[0].querySelector('.faq-answer');
-        firstAnswer.style.maxHeight = firstAnswer.scrollHeight + 'px';
-    }
+    faqItems.forEach(item => {
+        observer.observe(item, { attributes: true });
+    });
+    
+    console.log('FAQ Accordion initialized successfully');
 }
 
 // =========================================
@@ -242,13 +377,15 @@ function initializeBackToTop() {
     
     if (!backToTopBtn) return;
     
-    window.addEventListener('scroll', () => {
+    function toggleBackToTop() {
         if (window.pageYOffset > 300) {
             backToTopBtn.classList.add('visible');
         } else {
             backToTopBtn.classList.remove('visible');
         }
-    });
+    }
+    
+    window.addEventListener('scroll', toggleBackToTop);
     
     backToTopBtn.addEventListener('click', () => {
         window.scrollTo({
@@ -256,6 +393,9 @@ function initializeBackToTop() {
             behavior: 'smooth'
         });
     });
+    
+    // Initial check
+    toggleBackToTop();
 }
 
 // =========================================
@@ -265,13 +405,14 @@ function initializeWhatsAppButton() {
     const whatsappBtn = document.querySelector('.whatsapp-contact');
     const whatsappFloat = document.querySelector('.whatsapp-float');
     
-    const phoneNumber = "+14371234567"; // Real phone number
+    const phoneNumber = "+14371234567";
     const defaultMessage = "Hello Anna! I'm interested in booking a violin performance for my event. Could you please provide more information?";
     
     function openWhatsApp(message = defaultMessage) {
         const encodedMessage = encodeURIComponent(message);
-        const whatsappURL = `https://wa.me/${phoneNumber.replace(/\D/g, '')}?text=${encodedMessage}`;
-        window.open(whatsappURL, '_blank');
+        const cleanNumber = phoneNumber.replace(/\D/g, '');
+        const whatsappURL = `https://wa.me/${cleanNumber}?text=${encodedMessage}`;
+        window.open(whatsappURL, '_blank', 'noopener,noreferrer');
     }
     
     // Regular WhatsApp button
@@ -280,6 +421,14 @@ function initializeWhatsAppButton() {
             e.preventDefault();
             openWhatsApp();
         });
+        
+        // Добавляем поддержку клавиатуры
+        whatsappBtn.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                openWhatsApp();
+            }
+        });
     }
     
     // Floating WhatsApp button
@@ -287,6 +436,14 @@ function initializeWhatsAppButton() {
         whatsappFloat.addEventListener('click', (e) => {
             e.preventDefault();
             openWhatsApp();
+        });
+        
+        // Добавляем поддержку клавиатуры
+        whatsappFloat.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                openWhatsApp();
+            }
         });
     }
 }
@@ -302,15 +459,24 @@ function initializeVideoLazyLoading() {
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
-                const iframe = entry.target.querySelector('iframe');
-                if (iframe && !iframe.src.includes('autoplay=1')) {
-                    // Add autoplay parameter
-                    const src = iframe.src;
-                    iframe.src = src.includes('?') ? 
-                        src + '&autoplay=1&mute=1' : 
-                        src + '?autoplay=1&mute=1';
+                const container = entry.target;
+                const iframe = container.querySelector('iframe');
+                
+                if (iframe) {
+                    // Добавляем атрибут loading="lazy" если еще нет
+                    if (!iframe.hasAttribute('loading')) {
+                        iframe.setAttribute('loading', 'lazy');
+                    }
+                    
+                    // Можно добавить предзагрузку
+                    const src = iframe.getAttribute('src');
+                    if (src && !src.includes('autoplay')) {
+                        // Не автозапускаем, чтобы сохранить трафик пользователя
+                        iframe.setAttribute('title', iframe.getAttribute('title') || 'YouTube video player');
+                    }
                 }
-                observer.unobserve(entry.target);
+                
+                observer.unobserve(container);
             }
         });
     }, {
@@ -330,7 +496,11 @@ function initializePrivacyPolicyModal() {
     if (!privacyLinks.length) return;
     
     privacyLinks.forEach(link => {
-        link.addEventListener('click', (e) => {
+        // Удаляем старые обработчики
+        const newLink = link.cloneNode(true);
+        link.parentNode.replaceChild(newLink, link);
+        
+        newLink.addEventListener('click', (e) => {
             e.preventDefault();
             showPrivacyPolicyModal();
         });
@@ -338,50 +508,30 @@ function initializePrivacyPolicyModal() {
 }
 
 function showPrivacyPolicyModal() {
-    // Create modal container
+    // Проверяем, не открыт ли уже модальный
+    if (document.querySelector('.privacy-modal')) {
+        return;
+    }
+    
+    // Создаем модальный контейнер
     const modal = document.createElement('div');
     modal.className = 'privacy-modal';
-    modal.style.cssText = `
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0, 0, 0, 0.8);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        z-index: 10000;
-        padding: 20px;
-    `;
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-labelledby', 'privacy-modal-title');
+    modal.setAttribute('aria-modal', 'true');
     
-    // Create modal content
+    // Создаем содержимое модального окна
     const modalContent = document.createElement('div');
-    modalContent.style.cssText = `
-        background-color: white;
-        padding: 40px;
-        border-radius: 10px;
-        max-width: 800px;
-        max-height: 80vh;
-        overflow-y: auto;
-        position: relative;
-    `;
+    modalContent.className = 'privacy-modal-content';
     
     modalContent.innerHTML = `
-        <button class="modal-close" style="
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            background: none;
-            border: none;
-            font-size: 24px;
-            cursor: pointer;
-            color: #666;
-        ">×</button>
+        <button class="modal-close" aria-label="Close privacy policy">
+            <i class="fas fa-times"></i>
+        </button>
         
-        <h2 style="color: #0a1a3a; margin-bottom: 20px;">Privacy Policy</h2>
+        <h2 id="privacy-modal-title">Privacy Policy</h2>
         
-        <div style="color: #444; line-height: 1.6;">
+        <div class="modal-body">
             <p><strong>Last Updated: ${new Date().toLocaleDateString()}</strong></p>
             
             <h3>Information We Collect</h3>
@@ -414,7 +564,7 @@ function showPrivacyPolicyModal() {
                 <li>Opt-out of marketing communications</li>
             </ul>
             
-            <p style="margin-top: 30px; font-style: italic;">
+            <p class="modal-footer">
                 By submitting the contact form, you agree to the terms of this Privacy Policy.
             </p>
         </div>
@@ -423,24 +573,64 @@ function showPrivacyPolicyModal() {
     modal.appendChild(modalContent);
     document.body.appendChild(modal);
     
-    // Add close functionality
-    const closeBtn = modalContent.querySelector('.modal-close');
-    closeBtn.addEventListener('click', () => {
-        document.body.removeChild(modal);
-    });
+    // Сохраняем текущий активный элемент для возврата фокуса
+    const previousActiveElement = document.activeElement;
     
-    // Close modal when clicking outside
+    // Фокусируемся на модальном окне
+    setTimeout(() => {
+        modal.querySelector('.modal-close').focus();
+    }, 10);
+    
+    // Добавляем функциональность закрытия
+    function closeModal() {
+        document.body.removeChild(modal);
+        document.removeEventListener('keydown', handleEscapeKey);
+        
+        // Возвращаем фокус на предыдущий элемент
+        if (previousActiveElement) {
+            previousActiveElement.focus();
+        }
+    }
+    
+    const closeBtn = modalContent.querySelector('.modal-close');
+    closeBtn.addEventListener('click', closeModal);
+    
+    // Закрытие при клике вне модального окна
     modal.addEventListener('click', (e) => {
         if (e.target === modal) {
-            document.body.removeChild(modal);
+            closeModal();
         }
     });
     
-    // Close modal with Escape key
-    document.addEventListener('keydown', function closeOnEscape(e) {
+    // Закрытие с помощью клавиши Escape
+    function handleEscapeKey(e) {
         if (e.key === 'Escape') {
-            document.body.removeChild(modal);
-            document.removeEventListener('keydown', closeOnEscape);
+            closeModal();
+        }
+    }
+    
+    document.addEventListener('keydown', handleEscapeKey);
+    
+    // Ловим фокус внутри модального окна
+    const focusableElements = modal.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+    const firstFocusableElement = focusableElements[0];
+    const lastFocusableElement = focusableElements[focusableElements.length - 1];
+    
+    modal.addEventListener('keydown', (e) => {
+        if (e.key === 'Tab') {
+            if (e.shiftKey) {
+                // Shift + Tab
+                if (document.activeElement === firstFocusableElement) {
+                    e.preventDefault();
+                    lastFocusableElement.focus();
+                }
+            } else {
+                // Tab
+                if (document.activeElement === lastFocusableElement) {
+                    e.preventDefault();
+                    firstFocusableElement.focus();
+                }
+            }
         }
     });
 }
@@ -472,19 +662,20 @@ function initializeScrollAnimations() {
 }
 
 // =========================================
-// Form Validation (Updated for new fields)
+// Form Validation
 // =========================================
 function initializeFormValidation() {
     const form = document.getElementById('quote-form');
     if (!form) return;
     
-    // New fields validation
+    // Validation for number of guests
     const guestsInput = document.getElementById('guests');
     if (guestsInput) {
         guestsInput.addEventListener('input', function() {
             if (this.value < 1) {
                 this.value = 1;
             }
+            clearError(this);
         });
     }
     
@@ -496,7 +687,7 @@ function initializeFormValidation() {
         });
     }
     
-    // Enhanced email validation
+    // Email validation
     const emailInput = document.getElementById('email');
     if (emailInput) {
         emailInput.addEventListener('blur', function() {
@@ -508,10 +699,30 @@ function initializeFormValidation() {
             }
         });
     }
+    
+    // Date validation
+    const dateInput = document.getElementById('event-date');
+    if (dateInput) {
+        // Set min date to today
+        const today = new Date().toISOString().split('T')[0];
+        dateInput.setAttribute('min', today);
+        
+        dateInput.addEventListener('change', function() {
+            const selectedDate = new Date(this.value);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            if (selectedDate < today) {
+                showError(this, 'Please select a future date');
+            } else {
+                clearError(this);
+            }
+        });
+    }
 }
 
 // =========================================
-// Form Submission (Enhanced)
+// Form Submission
 // =========================================
 function initializeFormSubmission() {
     const form = document.getElementById('quote-form');
@@ -523,14 +734,13 @@ function initializeFormSubmission() {
         // Validate all required fields
         const requiredFields = form.querySelectorAll('[required]');
         let isValid = true;
+        let firstErrorField = null;
         
         requiredFields.forEach(field => {
             if (!validateField(field)) {
                 isValid = false;
-                // Scroll to first error
-                if (isValid === false) {
-                    field.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    field.focus();
+                if (!firstErrorField) {
+                    firstErrorField = field;
                 }
             }
         });
@@ -540,11 +750,15 @@ function initializeFormSubmission() {
         if (privacyCheckbox && !privacyCheckbox.checked) {
             showError(privacyCheckbox, 'You must agree to the Privacy Policy');
             isValid = false;
-            privacyCheckbox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            if (!firstErrorField) {
+                firstErrorField = privacyCheckbox;
+            }
         }
         
-        if (!isValid) {
+        if (!isValid && firstErrorField) {
             showFormMessage('Please fill in all required fields correctly.', 'error');
+            firstErrorField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            firstErrorField.focus();
             return;
         }
         
@@ -555,51 +769,46 @@ function initializeFormSubmission() {
         // Show loading state
         const submitBtn = form.querySelector('.submit-btn');
         const originalText = submitBtn.innerHTML;
+        const originalDisabled = submitBtn.disabled;
+        
         submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
         submitBtn.disabled = true;
         
         try {
-            // In a real implementation, use fetch() to send data to server
-            // For now, simulate API call
+            // Simulate API call
             await simulateFormSubmission(formObject);
             
             // Show success message
-            showFormMessage('Thank you for your inquiry, ' + formObject.name + '! Anna will contact you within 24 hours with a personalized quote.', 'success');
+            showFormMessage(`Thank you for your inquiry, ${formObject.name || ''}! Anna will contact you within 24 hours with a personalized quote.`, 'success');
             
             // Reset form
             form.reset();
             
-            // Send data to Google Analytics (if implemented)
+            // Track submission (if analytics are set up)
             trackFormSubmission(formObject);
             
         } catch (error) {
-            showFormMessage('There was an error submitting your request. Please try again or contact us directly via WhatsApp.', 'error');
             console.error('Form submission error:', error);
+            showFormMessage('There was an error submitting your request. Please try again or contact us directly via WhatsApp.', 'error');
         } finally {
             // Reset button
             submitBtn.innerHTML = originalText;
-            submitBtn.disabled = false;
+            submitBtn.disabled = originalDisabled;
         }
     });
 }
 
-// =========================================
-// Form Helper Functions
-// =========================================
+// Form helper functions
 function validateField(field) {
     if (field.hasAttribute('required') && !field.value.trim()) {
         showError(field, 'This field is required');
         return false;
     }
     
-    // Specific validation for date fields
-    if (field.type === 'date') {
-        const selectedDate = new Date(field.value);
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        
-        if (selectedDate < today) {
-            showError(field, 'Please select a future date');
+    if (field.type === 'email' && field.value.trim()) {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(field.value.trim())) {
+            showError(field, 'Please enter a valid email address');
             return false;
         }
     }
@@ -613,19 +822,10 @@ function showError(field, message) {
     const errorElement = document.createElement('div');
     errorElement.className = 'field-error';
     errorElement.textContent = message;
-    errorElement.style.cssText = `
-        color: #e74c3c;
-        font-size: 0.85rem;
-        margin-top: 8px;
-        padding: 5px 10px;
-        background-color: #fdf2f2;
-        border-radius: 4px;
-        border-left: 3px solid #e74c3c;
-    `;
+    errorElement.setAttribute('role', 'alert');
     
     field.parentNode.appendChild(errorElement);
-    field.style.borderColor = '#e74c3c';
-    field.style.backgroundColor = '#fdf2f2';
+    field.classList.add('error');
 }
 
 function clearError(field) {
@@ -633,12 +833,10 @@ function clearError(field) {
     if (errorElement) {
         errorElement.remove();
     }
-    field.style.borderColor = '#ddd';
-    field.style.backgroundColor = '#f8f9fa';
+    field.classList.remove('error');
 }
 
 async function simulateFormSubmission(formData) {
-    // Simulate API delay
     return new Promise((resolve) => {
         setTimeout(() => {
             console.log('Form submitted with data:', formData);
@@ -657,75 +855,58 @@ function showFormMessage(message, type) {
     // Create message element
     const messageElement = document.createElement('div');
     messageElement.className = `form-message form-message-${type}`;
+    messageElement.setAttribute('role', 'alert');
+    
+    const iconClass = type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle';
     messageElement.innerHTML = `
-        <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i>
+        <i class="fas ${iconClass}"></i>
         <span>${message}</span>
     `;
     
-    // Style the message
-    messageElement.style.cssText = `
-        padding: 20px;
-        border-radius: 8px;
-        margin: 25px 0;
-        display: flex;
-        align-items: center;
-        gap: 15px;
-        font-weight: 500;
-        animation: slideIn 0.5s ease;
-    `;
-    
-    if (type === 'success') {
-        messageElement.style.backgroundColor = '#d4edda';
-        messageElement.style.color = '#155724';
-        messageElement.style.border = '1px solid #c3e6cb';
-    } else {
-        messageElement.style.backgroundColor = '#f8d7da';
-        messageElement.style.color = '#721c24';
-        messageElement.style.border = '1px solid #f5c6cb';
-    }
-    
     // Insert after form
     const form = document.getElementById('quote-form');
-    form.parentNode.insertBefore(messageElement, form.nextSibling);
-    
-    // Auto-remove message after 10 seconds
-    setTimeout(() => {
-        if (messageElement.parentNode) {
-            messageElement.style.opacity = '0';
-            messageElement.style.transition = 'opacity 0.5s ease';
-            setTimeout(() => {
-                if (messageElement.parentNode) {
-                    messageElement.remove();
-                }
-            }, 500);
-        }
-    }, 10000);
+    if (form && form.parentNode) {
+        form.parentNode.insertBefore(messageElement, form.nextSibling);
+        
+        // Auto-remove message after 10 seconds
+        setTimeout(() => {
+            if (messageElement.parentNode) {
+                messageElement.style.opacity = '0';
+                messageElement.style.transition = 'opacity 0.5s ease';
+                setTimeout(() => {
+                    if (messageElement.parentNode) {
+                        messageElement.remove();
+                    }
+                }, 500);
+            }
+        }, 10000);
+        
+        // Scroll to message
+        messageElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
 }
 
-// =========================================
-// Analytics Tracking (Optional)
-// =========================================
 function trackFormSubmission(formData) {
-    // Google Analytics event tracking (if GA is installed)
+    // Google Analytics
     if (typeof gtag !== 'undefined') {
         gtag('event', 'form_submission', {
             'event_category': 'Contact',
-            'event_label': formData['event-type'],
+            'event_label': formData['event-type'] || 'Unknown',
             'value': 1
         });
     }
     
-    // Facebook Pixel (if installed)
+    // Facebook Pixel
     if (typeof fbq !== 'undefined') {
         fbq('track', 'Lead', {
             content_category: 'Violin Performance',
-            content_name: formData['event-type']
+            content_name: formData['event-type'] || 'Unknown'
         });
     }
 }
 
 // =========================================
-// Existing Functions (Updated as needed)
+// Repertoire Tabs (если еще используется)
 // =========================================
 function initializeRepertoireTabs() {
     const tabButtons = document.querySelectorAll('.tab-button');
@@ -755,7 +936,17 @@ function initializeRepertoireTabs() {
     });
 }
 
-// ... остальные существующие функции остаются без изменений ...
+// =========================================
+// Audio Players (если еще используется)
+// =========================================
+function initializeAudioPlayers() {
+    const audioSamples = document.querySelectorAll('.audio-sample');
+    
+    if (audioSamples.length === 0) return;
+    
+    // Эта функция может быть устаревшей, так как мы заменили аудио на видео
+    console.log('Audio players found, but video section is now used instead.');
+}
 
 // =========================================
 // Current Year in Footer
@@ -775,18 +966,26 @@ function initializeSmoothScrolling() {
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         anchor.addEventListener('click', function(e) {
             const href = this.getAttribute('href');
-            if (href === '#') return;
+            
+            // Skip if it's just "#"
+            if (href === '#' || href === '#!') return;
             
             const targetElement = document.querySelector(href);
             if (targetElement) {
                 e.preventDefault();
-                const headerHeight = document.querySelector('.site-header').offsetHeight;
+                
+                // Calculate header height for offset
+                const header = document.querySelector('.site-header');
+                const headerHeight = header ? header.offsetHeight : 0;
                 const targetPosition = targetElement.offsetTop - headerHeight - 20;
                 
                 window.scrollTo({
                     top: targetPosition,
                     behavior: 'smooth'
                 });
+                
+                // Update URL without jumping
+                history.pushState(null, null, href);
             }
         });
     });
@@ -800,8 +999,9 @@ function initializeHeaderScrollEffect() {
     if (!header) return;
     
     let lastScrollTop = 0;
+    let ticking = false;
     
-    window.addEventListener('scroll', function() {
+    function updateHeader() {
         const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
         
         // Add/remove scrolled class
@@ -813,50 +1013,66 @@ function initializeHeaderScrollEffect() {
         
         // Header hide/show on scroll
         if (scrollTop > lastScrollTop && scrollTop > 200) {
+            // Scrolling down
             header.style.transform = 'translateY(-100%)';
         } else {
+            // Scrolling up
             header.style.transform = 'translateY(0)';
         }
         
         lastScrollTop = scrollTop;
-    });
-}
-
-// Initialize YouTube video lazy loading when they enter viewport
-function initializeYouTubeLazyLoad() {
-    const videos = document.querySelectorAll('.video-container iframe');
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                const iframe = entry.target;
-                // Add loading parameter for better performance
-                iframe.setAttribute('loading', 'lazy');
-                observer.unobserve(iframe);
-            }
-        });
-    }, { threshold: 0.1 });
+        ticking = false;
+    }
     
-    videos.forEach(video => observer.observe(video));
+    window.addEventListener('scroll', () => {
+        if (!ticking) {
+            window.requestAnimationFrame(updateHeader);
+            ticking = true;
+        }
+    });
+    
+    // Initial check
+    updateHeader();
 }
 
+// =========================================
 // Newsletter Form Handling
+// =========================================
 function initializeNewsletterForm() {
     const newsletterForm = document.querySelector('.newsletter-form');
     if (!newsletterForm) return;
     
     newsletterForm.addEventListener('submit', function(e) {
         e.preventDefault();
-        const email = this.querySelector('input[type="email"]').value;
+        const emailInput = this.querySelector('input[type="email"]');
+        const email = emailInput.value.trim();
         
         if (email && email.includes('@')) {
-            // In real implementation, send to email service
-            this.querySelector('input[type="email"]').value = '';
-            alert('Thank you for subscribing!');
+            // Show success state
+            const button = this.querySelector('button');
+            const originalHTML = button.innerHTML;
+            button.innerHTML = '<i class="fas fa-check"></i>';
+            button.style.backgroundColor = '#25D366';
+            
+            // Reset after 2 seconds
+            setTimeout(() => {
+                emailInput.value = '';
+                button.innerHTML = originalHTML;
+                button.style.backgroundColor = '';
+            }, 2000);
+        } else {
+            // Show error state briefly
+            emailInput.style.borderColor = '#ff4444';
+            setTimeout(() => {
+                emailInput.style.borderColor = '';
+            }, 2000);
         }
     });
 }
 
-// Performance optimization: Debounce scroll events
+// =========================================
+// Performance Optimization
+// =========================================
 function debounce(func, wait = 20, immediate = true) {
     let timeout;
     return function() {
@@ -872,9 +1088,36 @@ function debounce(func, wait = 20, immediate = true) {
     };
 }
 
-// Initialize when DOM is fully loaded
-document.addEventListener('DOMContentLoaded', function() {
-    // Apply debounce to scroll-intensive functions
-    window.addEventListener('scroll', debounce(initializeHeaderScrollEffect));
-    window.addEventListener('scroll', debounce(initializeScrollAnimations));
+// Initialize some functions with debounce
+window.addEventListener('scroll', debounce(initializeHeaderScrollEffect, 10));
+window.addEventListener('resize', debounce(() => {
+    // Recalculate FAQ heights on resize
+    document.querySelectorAll('.faq-item.active .faq-answer').forEach(answer => {
+        answer.style.maxHeight = answer.scrollHeight + 'px';
+    });
+}, 250));
+
+// =========================================
+// Error Handling
+// =========================================
+window.addEventListener('error', function(e) {
+    console.error('JavaScript Error:', e.message, 'at', e.filename, 'line', e.lineno);
+});
+
+// =========================================
+// Initialize when page is fully loaded
+// =========================================
+window.addEventListener('load', function() {
+    console.log('Page fully loaded');
+    
+    // Ensure FAQ is properly initialized after all content is loaded
+    setTimeout(() => {
+        const faqItems = document.querySelectorAll('.faq-item.active');
+        faqItems.forEach(item => {
+            const answer = item.querySelector('.faq-answer');
+            if (answer) {
+                answer.style.maxHeight = answer.scrollHeight + 'px';
+            }
+        });
+    }, 100);
 });

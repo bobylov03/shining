@@ -1018,12 +1018,50 @@ ul, ol {
     text-transform: uppercase;
     letter-spacing: 1px;
     flex-shrink: 0;
-    white-space: nowrap;
+    /* Убрали white-space: nowrap для мобильных устройств */
+    white-space: normal;
+    text-align: center;
+    /* Добавим перенос слов */
+    word-break: break-word;
+    overflow-wrap: break-word;
 }
 
 .arrangement-cta:hover {
     transform: translateY(-3px);
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+/* Исправление для мобильной версии */
+@media (max-width: 768px) {
+    .custom-arrangement {
+        flex-direction: column;
+        text-align: center;
+        gap: 30px;
+        padding: 40px 20px;
+    }
+    
+    .arrangement-content {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 20px;
+    }
+    
+    .arrangement-cta {
+        width: 100%;
+        padding: 16px 20px;
+        font-size: 1rem;
+        white-space: normal;
+        line-height: 1.4;
+    }
+    
+    .arrangement-content h3 {
+        font-size: 1.5rem;
+    }
+    
+    .arrangement-content p {
+        font-size: 1rem;
+    }
 }
 
 @media (max-width: 1024px) {
@@ -1032,27 +1070,13 @@ ul, ol {
     }
     
     .custom-arrangement {
-        flex-direction: column;
-        text-align: center;
-        gap: 30px;
         padding: 40px 30px;
-    }
-    
-    .arrangement-content {
-        flex-direction: column;
-        align-items: center;
-        text-align: center;
     }
 }
 
 @media (max-width: 768px) {
     .repertoire-categories {
         grid-template-columns: 1fr;
-    }
-    
-    .arrangement-cta {
-        width: 100%;
-        text-align: center;
     }
 }
 
@@ -1212,6 +1236,7 @@ ul, ol {
         flex-direction: column;
         text-align: center;
         gap: 15px;
+        padding: 20px;
     }
 }
 
@@ -1429,7 +1454,7 @@ ul, ol {
 }
 
 /* =========================================
-   FAQ SECTION
+   FAQ SECTION - ИСПРАВЛЕННЫЕ СТИЛИ
    ========================================= */
 .faq-grid {
     max-width: 900px;
@@ -1442,6 +1467,11 @@ ul, ol {
     overflow: hidden;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
     border: 1px solid #eee;
+    transition: all 0.3s ease;
+}
+
+.faq-item.active {
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
 }
 
 .faq-question {
@@ -1452,6 +1482,7 @@ ul, ol {
     align-items: center;
     cursor: pointer;
     transition: background-color 0.3s ease;
+    -webkit-tap-highlight-color: transparent;
 }
 
 .faq-question:hover {
@@ -1462,16 +1493,36 @@ ul, ol {
     margin: 0;
     font-size: 1.3rem;
     color: #0a1a3a;
+    flex: 1;
+    padding-right: 20px;
 }
 
 .faq-question i {
     color: #c9a96a;
     font-size: 1.2rem;
     transition: transform 0.3s ease;
+    flex-shrink: 0;
 }
 
 .faq-item.active .faq-question i {
     transform: rotate(180deg);
+}
+
+/* Убедимся, что FAQ работает на мобильных устройствах */
+@media (max-width: 768px) {
+    .faq-question {
+        padding: 20px;
+        min-height: 60px; /* Минимальная высота для лучшего нажатия */
+    }
+    
+    .faq-question h3 {
+        font-size: 1.1rem;
+        line-height: 1.4;
+    }
+    
+    .faq-question i {
+        font-size: 1.1rem;
+    }
 }
 
 .faq-answer {
@@ -1479,18 +1530,29 @@ ul, ol {
     background-color: #f8f9fa;
     max-height: 0;
     overflow: hidden;
-    transition: max-height 0.3s ease, padding 0.3s ease;
+    transition: max-height 0.5s ease, padding 0.3s ease;
 }
 
 .faq-item.active .faq-answer {
     padding: 25px 30px;
-    max-height: 500px;
+    max-height: 1000px; /* Увеличили для больших ответов */
 }
 
 .faq-answer p {
     margin: 0;
     color: #555;
     line-height: 1.7;
+    font-size: 1.05rem;
+}
+
+@media (max-width: 768px) {
+    .faq-item.active .faq-answer {
+        padding: 20px;
+    }
+    
+    .faq-answer p {
+        font-size: 1rem;
+    }
 }
 
 /* =========================================
@@ -1603,6 +1665,9 @@ ul, ol {
 
 .form-privacy input {
     margin-top: 5px;
+    min-width: 20px;
+    height: 20px;
+    cursor: pointer;
 }
 
 .form-privacy label {
@@ -1610,6 +1675,7 @@ ul, ol {
     font-size: 0.95rem;
     color: #555;
     line-height: 1.6;
+    cursor: pointer;
 }
 
 .privacy-link {
@@ -1743,6 +1809,7 @@ ul, ol {
 .next-steps {
     list-style: none;
     padding-left: 0;
+    counter-reset: item;
 }
 
 .next-steps li {
@@ -1824,6 +1891,14 @@ ul, ol {
     
     .info-card {
         padding: 30px 25px;
+    }
+    
+    .whatsapp-contact, .email-contact {
+        padding: 15px;
+    }
+    
+    .phone-number, .email-address {
+        font-size: 1.1rem;
     }
 }
 
@@ -2210,7 +2285,7 @@ ul, ol {
 
 @media (max-width: 768px) {
     #back-to-top {
-        bottom: 20px;
+        bottom: 90px;
         right: 20px;
         width: 45px;
         height: 45px;
@@ -2262,6 +2337,7 @@ ul, ol {
         display: block;
         padding: 15px 20px;
         font-size: 1.1rem;
+        -webkit-tap-highlight-color: transparent;
     }
     
     .nav-links .cta-button {
@@ -2288,7 +2364,11 @@ ul, ol {
 .field-error {
     color: #e74c3c;
     font-size: 0.85rem;
-    margin-top: 5px;
+    margin-top: 8px;
+    padding: 5px 10px;
+    background-color: #fdf2f2;
+    border-radius: 4px;
+    border-left: 3px solid #e74c3c;
 }
 
 .form-message {
@@ -2298,6 +2378,10 @@ ul, ol {
     text-align: center;
     font-weight: 500;
     animation: slideIn 0.5s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
 }
 
 @keyframes slideIn {
@@ -2321,6 +2405,49 @@ ul, ol {
     background-color: #f8d7da;
     color: #721c24;
     border: 1px solid #f5c6cb;
+}
+
+/* =========================================
+   MODAL STYLES
+   ========================================= */
+.privacy-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10000;
+    padding: 20px;
+}
+
+.privacy-modal-content {
+    background-color: white;
+    padding: 40px;
+    border-radius: 10px;
+    max-width: 800px;
+    max-height: 80vh;
+    overflow-y: auto;
+    position: relative;
+}
+
+.modal-close {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #666;
+    transition: color 0.3s ease;
+}
+
+.modal-close:hover {
+    color: #c9a96a;
 }
 
 /* =========================================
@@ -2390,4 +2517,68 @@ ul, ol {
         color: #444;
         font-size: 14pt;
     }
+}
+
+/* =========================================
+   ACCESSIBILITY IMPROVEMENTS
+   ========================================= */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* Улучшение для касаний на мобильных */
+@media (max-width: 768px) {
+    button, 
+    a, 
+    .faq-question, 
+    .cta-button, 
+    .hero-cta, 
+    .secondary-cta,
+    .arrangement-cta,
+    .youtube-cta,
+    .submit-btn {
+        min-height: 44px; /* Минимальный размер для касаний */
+        min-width: 44px;
+    }
+    
+    /* Улучшение визуальной обратной связи при касании */
+    .faq-question:active {
+        background-color: #f0f4ff;
+    }
+    
+    .cta-button:active,
+    .hero-cta:active,
+    .submit-btn:active {
+        transform: translateY(-1px);
+    }
+}
+
+/* Улучшение фокуса для доступности */
+:focus {
+    outline: 2px solid #c9a96a;
+    outline-offset: 2px;
+}
+
+/* Для элементов, которые не должны иметь outline по умолчанию */
+button:focus,
+input:focus,
+select:focus,
+textarea:focus {
+    outline: 2px solid #c9a96a;
+    outline-offset: 2px;
+}
+
+/* Скрыть outline для мыши, но показывать для клавиатуры */
+body:not(.user-is-tabbing) button:focus,
+body:not(.user-is-tabbing) input:focus,
+body:not(.user-is-tabbing) select:focus,
+body:not(.user-is-tabbing) textarea:focus,
+body:not(.user-is-tabbing) a:focus {
+    outline: none;
 }
