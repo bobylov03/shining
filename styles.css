@@ -133,8 +133,10 @@ ul, ol {
     z-index: 1000;
     padding: 15px 0;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-    transition: all 0.3s ease;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
     backdrop-filter: blur(10px);
+    /* Убираем transform для предотвращения дергания */
+    transform: none !important;
 }
 
 .site-header.scrolled {
@@ -1556,7 +1558,7 @@ ul, ol {
 }
 
 /* =========================================
-   CONTACT SECTION
+   CONTACT SECTION - С ИСПРАВЛЕНИЯМИ ДЛЯ INPUT DATE
    ========================================= */
 .contact-header {
     text-align: center;
@@ -1651,6 +1653,35 @@ ul, ol {
 .form-group textarea {
     resize: vertical;
     min-height: 120px;
+}
+
+/* Исправление для input date на мобильных устройствах */
+@media (max-width: 768px) {
+    input[type="date"] {
+        min-height: 48px;
+        font-size: 16px !important; /* Предотвращает зум на iOS */
+        padding: 12px 15px !important;
+        width: 100% !important;
+        box-sizing: border-box;
+        -webkit-appearance: none;
+        appearance: none;
+        background-color: #f8f9fa;
+    }
+    
+    /* Дополнительная обертка для date input если нужно */
+    .form-group input[type="date"] {
+        max-width: 100%;
+        white-space: normal;
+        text-overflow: ellipsis;
+    }
+    
+    /* Для iOS */
+    @supports (-webkit-touch-callout: none) {
+        input[type="date"] {
+            min-height: 48px;
+            font-size: 16px;
+        }
+    }
 }
 
 .form-privacy {

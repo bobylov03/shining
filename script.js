@@ -992,41 +992,35 @@ function initializeSmoothScrolling() {
 }
 
 // =========================================
-// Header Scroll Effect
+// Header Scroll Effect - ИСПРАВЛЕННАЯ ВЕРСИЯ
 // =========================================
 function initializeHeaderScrollEffect() {
     const header = document.querySelector('.site-header');
     if (!header) return;
     
-    let lastScrollTop = 0;
-    let ticking = false;
+    // Убираем transform из начальных стилей
+    header.style.transform = 'none';
+    header.style.transition = 'background-color 0.3s ease, box-shadow 0.3s ease';
     
     function updateHeader() {
         const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
         
-        // Add/remove scrolled class
+        // Только меняем фон, без скрытия хэдера
         if (scrollTop > 100) {
             header.classList.add('scrolled');
         } else {
             header.classList.remove('scrolled');
         }
-        
-        // Header hide/show on scroll
-        if (scrollTop > lastScrollTop && scrollTop > 200) {
-            // Scrolling down
-            header.style.transform = 'translateY(-100%)';
-        } else {
-            // Scrolling up
-            header.style.transform = 'translateY(0)';
-        }
-        
-        lastScrollTop = scrollTop;
-        ticking = false;
     }
     
+    // Используем throttle для оптимизации
+    let ticking = false;
     window.addEventListener('scroll', () => {
         if (!ticking) {
-            window.requestAnimationFrame(updateHeader);
+            window.requestAnimationFrame(() => {
+                updateHeader();
+                ticking = false;
+            });
             ticking = true;
         }
     });
@@ -1089,7 +1083,6 @@ function debounce(func, wait = 20, immediate = true) {
 }
 
 // Initialize some functions with debounce
-window.addEventListener('scroll', debounce(initializeHeaderScrollEffect, 10));
 window.addEventListener('resize', debounce(() => {
     // Recalculate FAQ heights on resize
     document.querySelectorAll('.faq-item.active .faq-answer').forEach(answer => {
