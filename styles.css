@@ -368,6 +368,7 @@ ul, ol {
 @media (max-width: 1024px) {
     .hero-title {
         font-size: 3.5rem;
+        margin-top: 10px;
     }
     
     .hero-subtitle {
@@ -2628,3 +2629,5 @@ body:not(.user-is-tabbing) a:focus {
         height: 350px;
     }
 }
+
+.hero-title

@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Контент и анимации
     initializeStatsCounter();
     initializeTestimonialSlider();
-    initializeFAQAccordion(); // Убедимся, что это вызывается
+    initializeFAQAccordion();
     initializeScrollAnimations();
     initializeVideoLazyLoading();
     
@@ -135,7 +135,7 @@ function initializeStatsCounter() {
 }
 
 // =========================================
-// Testimonial Slider
+// Testimonial Slider - ИСПРАВЛЕННАЯ ВЕРСИЯ
 // =========================================
 function initializeTestimonialSlider() {
     const slides = document.querySelectorAll('.testimonial-slide');
@@ -148,8 +148,15 @@ function initializeTestimonialSlider() {
     let currentSlide = 0;
     const slideCount = slides.length;
     let slideInterval;
+    let isTransitioning = false;
     
     function showSlide(index) {
+        if (isTransitioning) return;
+        isTransitioning = true;
+        
+        // Сохраняем позицию скролла
+        const scrollPosition = window.pageYOffset;
+        
         // Hide all slides
         slides.forEach(slide => {
             slide.classList.remove('active');
@@ -169,6 +176,17 @@ function initializeTestimonialSlider() {
         }
         
         currentSlide = index;
+        
+        // Восстанавливаем позицию скролла
+        window.scrollTo({
+            top: scrollPosition,
+            behavior: 'auto'
+        });
+        
+        // Сбрасываем флаг через небольшую задержку
+        setTimeout(() => {
+            isTransitioning = false;
+        }, 300);
     }
     
     function nextSlide() {
@@ -237,11 +255,13 @@ function initializeTestimonialSlider() {
     // Keyboard navigation
     document.addEventListener('keydown', (e) => {
         if (e.key === 'ArrowLeft') {
+            e.preventDefault();
             stopAutoSlide();
             prevSlide();
             setTimeout(startAutoSlide, 5000);
         }
         if (e.key === 'ArrowRight') {
+            e.preventDefault();
             stopAutoSlide();
             nextSlide();
             setTimeout(startAutoSlide, 5000);
@@ -250,7 +270,7 @@ function initializeTestimonialSlider() {
 }
 
 // =========================================
-// FAQ Accordion - ИСПРАВЛЕННАЯ ФУНКЦИЯ
+// FAQ Accordion - ИСПРАВЛЕННАЯ ВЕРСИЯ
 // =========================================
 function initializeFAQAccordion() {
     console.log('Initializing FAQ Accordion...');
@@ -297,6 +317,9 @@ function initializeFAQAccordion() {
             e.preventDefault();
             e.stopPropagation();
             
+            // Сохраняем позицию скролла
+            const scrollPosition = window.pageYOffset;
+            
             console.log('FAQ clicked:', item);
             
             // Закрываем все другие FAQ
@@ -334,6 +357,14 @@ function initializeFAQAccordion() {
                     icon.style.transform = 'rotate(0deg)';
                 }
             }
+            
+            // Восстанавливаем позицию скролла после изменения высоты
+            setTimeout(() => {
+                window.scrollTo({
+                    top: scrollPosition,
+                    behavior: 'auto'
+                });
+            }, 10);
         });
         
         // Добавляем обработчик для клавиатуры
@@ -405,7 +436,7 @@ function initializeWhatsAppButton() {
     const whatsappBtn = document.querySelector('.whatsapp-contact');
     const whatsappFloat = document.querySelector('.whatsapp-float');
     
-    const phoneNumber = "+14371234567";
+    const phoneNumber = "+14379873848"; // Исправленный номер
     const defaultMessage = "Hello Anna! I'm interested in booking a violin performance for my event. Could you please provide more information?";
     
     function openWhatsApp(message = defaultMessage) {
@@ -513,6 +544,9 @@ function showPrivacyPolicyModal() {
         return;
     }
     
+    // Сохраняем позицию скролла
+    const scrollPosition = window.pageYOffset;
+    
     // Создаем модальный контейнер
     const modal = document.createElement('div');
     modal.className = 'privacy-modal';
@@ -572,6 +606,12 @@ function showPrivacyPolicyModal() {
     
     modal.appendChild(modalContent);
     document.body.appendChild(modal);
+    
+    // Восстанавливаем позицию скролла
+    window.scrollTo({
+        top: scrollPosition,
+        behavior: 'auto'
+    });
     
     // Сохраняем текущий активный элемент для возврата фокуса
     const previousActiveElement = document.activeElement;
@@ -992,7 +1032,7 @@ function initializeSmoothScrolling() {
 }
 
 // =========================================
-// Header Scroll Effect - ИСПРАВЛЕННАЯ ВЕРСИЯ
+// Header Scroll Effect - УПРОЩЕННАЯ ВЕРСИЯ
 // =========================================
 function initializeHeaderScrollEffect() {
     const header = document.querySelector('.site-header');
