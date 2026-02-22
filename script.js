@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeScrollAnimations();
     initializeVideoLazyLoading();
     
-    // Формы и контакты
+    // Формы и контакты - ОБНОВЛЕНО для FormSubmit
     initializeFormValidation();
     initializeFormSubmission();
     initializeWhatsAppButton();
@@ -451,7 +451,7 @@ function initializeWhatsAppButton() {
     const whatsappBtn = document.querySelector('.whatsapp-contact');
     const whatsappFloat = document.querySelector('.whatsapp-float');
     
-    const phoneNumber = "+14379873848"; // Исправленный номер
+    const phoneNumber = "+14379873848";
     const defaultMessage = "Hello Anna! I'm interested in booking a violin performance for my event. Could you please provide more information?";
     
     function openWhatsApp(message = defaultMessage) {
@@ -461,14 +461,12 @@ function initializeWhatsAppButton() {
         window.open(whatsappURL, '_blank', 'noopener,noreferrer');
     }
     
-    // Regular WhatsApp button
     if (whatsappBtn) {
         whatsappBtn.addEventListener('click', (e) => {
             e.preventDefault();
             openWhatsApp();
         });
         
-        // Добавляем поддержку клавиатуры
         whatsappBtn.addEventListener('keydown', (e) => {
             if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault();
@@ -477,14 +475,12 @@ function initializeWhatsAppButton() {
         });
     }
     
-    // Floating WhatsApp button
     if (whatsappFloat) {
         whatsappFloat.addEventListener('click', (e) => {
             e.preventDefault();
             openWhatsApp();
         });
         
-        // Добавляем поддержку клавиатуры
         whatsappFloat.addEventListener('keydown', (e) => {
             if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault();
@@ -509,15 +505,12 @@ function initializeVideoLazyLoading() {
                 const iframe = container.querySelector('iframe');
                 
                 if (iframe) {
-                    // Добавляем атрибут loading="lazy" если еще нет
                     if (!iframe.hasAttribute('loading')) {
                         iframe.setAttribute('loading', 'lazy');
                     }
                     
-                    // Можно добавить предзагрузку
                     const src = iframe.getAttribute('src');
                     if (src && !src.includes('autoplay')) {
-                        // Не автозапускаем, чтобы сохранить трафик пользователя
                         iframe.setAttribute('title', iframe.getAttribute('title') || 'YouTube video player');
                     }
                 }
@@ -542,7 +535,6 @@ function initializePrivacyPolicyModal() {
     if (!privacyLinks.length) return;
     
     privacyLinks.forEach(link => {
-        // Удаляем старые обработчики
         const newLink = link.cloneNode(true);
         link.parentNode.replaceChild(newLink, link);
         
@@ -554,22 +546,18 @@ function initializePrivacyPolicyModal() {
 }
 
 function showPrivacyPolicyModal() {
-    // Проверяем, не открыт ли уже модальный
     if (document.querySelector('.privacy-modal')) {
         return;
     }
     
-    // Сохраняем позицию скролла
     const scrollPosition = window.pageYOffset;
     
-    // Создаем модальный контейнер
     const modal = document.createElement('div');
     modal.className = 'privacy-modal';
     modal.setAttribute('role', 'dialog');
     modal.setAttribute('aria-labelledby', 'privacy-modal-title');
     modal.setAttribute('aria-modal', 'true');
     
-    // Создаем содержимое модального окна
     const modalContent = document.createElement('div');
     modalContent.className = 'privacy-modal-content';
     
@@ -622,26 +610,21 @@ function showPrivacyPolicyModal() {
     modal.appendChild(modalContent);
     document.body.appendChild(modal);
     
-    // Восстанавливаем позицию скролла
     window.scrollTo({
         top: scrollPosition,
         behavior: 'auto'
     });
     
-    // Сохраняем текущий активный элемент для возврата фокуса
     const previousActiveElement = document.activeElement;
     
-    // Фокусируемся на модальном окне
     setTimeout(() => {
         modal.querySelector('.modal-close').focus();
     }, 10);
     
-    // Добавляем функциональность закрытия
     function closeModal() {
         document.body.removeChild(modal);
         document.removeEventListener('keydown', handleEscapeKey);
         
-        // Возвращаем фокус на предыдущий элемент
         if (previousActiveElement) {
             previousActiveElement.focus();
         }
@@ -650,14 +633,12 @@ function showPrivacyPolicyModal() {
     const closeBtn = modalContent.querySelector('.modal-close');
     closeBtn.addEventListener('click', closeModal);
     
-    // Закрытие при клике вне модального окна
     modal.addEventListener('click', (e) => {
         if (e.target === modal) {
             closeModal();
         }
     });
     
-    // Закрытие с помощью клавиши Escape
     function handleEscapeKey(e) {
         if (e.key === 'Escape') {
             closeModal();
@@ -666,7 +647,6 @@ function showPrivacyPolicyModal() {
     
     document.addEventListener('keydown', handleEscapeKey);
     
-    // Ловим фокус внутри модального окна
     const focusableElements = modal.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
     const firstFocusableElement = focusableElements[0];
     const lastFocusableElement = focusableElements[focusableElements.length - 1];
@@ -674,13 +654,11 @@ function showPrivacyPolicyModal() {
     modal.addEventListener('keydown', (e) => {
         if (e.key === 'Tab') {
             if (e.shiftKey) {
-                // Shift + Tab
                 if (document.activeElement === firstFocusableElement) {
                     e.preventDefault();
                     lastFocusableElement.focus();
                 }
             } else {
-                // Tab
                 if (document.activeElement === lastFocusableElement) {
                     e.preventDefault();
                     firstFocusableElement.focus();
@@ -717,7 +695,7 @@ function initializeScrollAnimations() {
 }
 
 // =========================================
-// Form Validation
+// Form Validation - ОБНОВЛЕНО для FormSubmit
 // =========================================
 function initializeFormValidation() {
     const form = document.getElementById('quote-form');
@@ -758,7 +736,6 @@ function initializeFormValidation() {
     // Date validation
     const dateInput = document.getElementById('event-date');
     if (dateInput) {
-        // Set min date to today
         const today = new Date().toISOString().split('T')[0];
         dateInput.setAttribute('min', today);
         
@@ -777,79 +754,100 @@ function initializeFormValidation() {
 }
 
 // =========================================
-// Form Submission
+// Form Submission - ОБНОВЛЕНО для FormSubmit
 // =========================================
 function initializeFormSubmission() {
     const form = document.getElementById('quote-form');
     if (!form) return;
     
-    form.addEventListener('submit', async function(e) {
-        e.preventDefault();
-        
-        // Validate all required fields
+    // Перехватываем отправку формы для валидации
+    form.addEventListener('submit', function(e) {
+        // Валидация перед отправкой
         const requiredFields = form.querySelectorAll('[required]');
         let isValid = true;
         let firstErrorField = null;
         
         requiredFields.forEach(field => {
-            if (!validateField(field)) {
+            if (!field.value.trim()) {
                 isValid = false;
+                field.classList.add('error');
                 if (!firstErrorField) {
                     firstErrorField = field;
                 }
+            } else {
+                field.classList.remove('error');
             }
         });
         
-        // Special validation for privacy checkbox
+        // Проверка email
+        const emailInput = document.getElementById('email');
+        if (emailInput && emailInput.value.trim()) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(emailInput.value.trim())) {
+                isValid = false;
+                emailInput.classList.add('error');
+                if (!firstErrorField) {
+                    firstErrorField = emailInput;
+                }
+            }
+        }
+        
+        // Проверка privacy checkbox
         const privacyCheckbox = document.getElementById('privacy');
         if (privacyCheckbox && !privacyCheckbox.checked) {
-            showError(privacyCheckbox, 'You must agree to the Privacy Policy');
             isValid = false;
+            privacyCheckbox.classList.add('error');
             if (!firstErrorField) {
                 firstErrorField = privacyCheckbox;
             }
         }
         
-        if (!isValid && firstErrorField) {
-            showFormMessage('Please fill in all required fields correctly.', 'error');
-            firstErrorField.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            firstErrorField.focus();
-            return;
+        if (!isValid) {
+            e.preventDefault();
+            
+            let errorMessage = 'Please fill in all required fields correctly.';
+            if (firstErrorField) {
+                firstErrorField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                firstErrorField.focus();
+            }
+            
+            // Показываем сообщение об ошибке
+            const existingMessage = document.querySelector('.form-message');
+            if (existingMessage) existingMessage.remove();
+            
+            const messageElement = document.createElement('div');
+            messageElement.className = 'form-message form-message-error';
+            messageElement.innerHTML = `
+                <i class="fas fa-exclamation-circle"></i>
+                <span>${errorMessage}</span>
+            `;
+            form.parentNode.insertBefore(messageElement, form.nextSibling);
+            
+            setTimeout(() => {
+                if (messageElement.parentNode) {
+                    messageElement.remove();
+                }
+            }, 5000);
+            
+            return false;
         }
         
-        // Get form data
-        const formData = new FormData(form);
-        const formObject = Object.fromEntries(formData.entries());
-        
-        // Show loading state
+        // Если валидация прошла, показываем сообщение об отправке
         const submitBtn = form.querySelector('.submit-btn');
-        const originalText = submitBtn.innerHTML;
-        const originalDisabled = submitBtn.disabled;
-        
         submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
         submitBtn.disabled = true;
         
-        try {
-            // Simulate API call
-            await simulateFormSubmission(formObject);
-            
-            // Show success message
-            showFormMessage(`Thank you for your inquiry, ${formObject.name || ''}! Anna will contact you within 24 hours with a personalized quote.`, 'success');
-            
-            // Reset form
-            form.reset();
-            
-            // Track submission (if analytics are set up)
-            trackFormSubmission(formObject);
-            
-        } catch (error) {
-            console.error('Form submission error:', error);
-            showFormMessage('There was an error submitting your request. Please try again or contact us directly via WhatsApp.', 'error');
-        } finally {
-            // Reset button
-            submitBtn.innerHTML = originalText;
-            submitBtn.disabled = originalDisabled;
-        }
+        // FormSubmit отправит форму, мы показываем сообщение
+        const messageElement = document.createElement('div');
+        messageElement.className = 'form-message form-message-info';
+        messageElement.innerHTML = `
+            <i class="fas fa-info-circle"></i>
+            <span>Sending your request...</span>
+        `;
+        form.parentNode.insertBefore(messageElement, form.nextSibling);
+        
+        // Разрешаем отправку формы
+        return true;
     });
 }
 
@@ -891,23 +889,12 @@ function clearError(field) {
     field.classList.remove('error');
 }
 
-async function simulateFormSubmission(formData) {
-    return new Promise((resolve) => {
-        setTimeout(() => {
-            console.log('Form submitted with data:', formData);
-            resolve();
-        }, 1500);
-    });
-}
-
 function showFormMessage(message, type) {
-    // Remove existing message
     const existingMessage = document.querySelector('.form-message');
     if (existingMessage) {
         existingMessage.remove();
     }
     
-    // Create message element
     const messageElement = document.createElement('div');
     messageElement.className = `form-message form-message-${type}`;
     messageElement.setAttribute('role', 'alert');
@@ -918,12 +905,10 @@ function showFormMessage(message, type) {
         <span>${message}</span>
     `;
     
-    // Insert after form
     const form = document.getElementById('quote-form');
     if (form && form.parentNode) {
         form.parentNode.insertBefore(messageElement, form.nextSibling);
         
-        // Auto-remove message after 10 seconds
         setTimeout(() => {
             if (messageElement.parentNode) {
                 messageElement.style.opacity = '0';
@@ -934,15 +919,13 @@ function showFormMessage(message, type) {
                     }
                 }, 500);
             }
-        }, 10000);
+        }, 5000);
         
-        // Scroll to message
         messageElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
 }
 
 function trackFormSubmission(formData) {
-    // Google Analytics
     if (typeof gtag !== 'undefined') {
         gtag('event', 'form_submission', {
             'event_category': 'Contact',
@@ -951,7 +934,6 @@ function trackFormSubmission(formData) {
         });
     }
     
-    // Facebook Pixel
     if (typeof fbq !== 'undefined') {
         fbq('track', 'Lead', {
             content_category: 'Violin Performance',
@@ -961,7 +943,7 @@ function trackFormSubmission(formData) {
 }
 
 // =========================================
-// Repertoire Tabs (если еще используется)
+// Repertoire Tabs
 // =========================================
 function initializeRepertoireTabs() {
     const tabButtons = document.querySelectorAll('.tab-button');
@@ -973,14 +955,12 @@ function initializeRepertoireTabs() {
         button.addEventListener('click', function() {
             const tabId = this.getAttribute('data-tab');
             
-            // Remove active class from all buttons and contents
             tabButtons.forEach(btn => btn.classList.remove('active'));
             tabContents.forEach(content => {
                 content.classList.remove('active');
                 content.style.display = 'none';
             });
             
-            // Add active class to clicked button and corresponding content
             this.classList.add('active');
             const activeContent = document.getElementById(tabId);
             if (activeContent) {
@@ -992,14 +972,13 @@ function initializeRepertoireTabs() {
 }
 
 // =========================================
-// Audio Players (если еще используется)
+// Audio Players
 // =========================================
 function initializeAudioPlayers() {
     const audioSamples = document.querySelectorAll('.audio-sample');
     
     if (audioSamples.length === 0) return;
     
-    // Эта функция может быть устаревшей, так как мы заменили аудио на видео
     console.log('Audio players found, but video section is now used instead.');
 }
 
@@ -1022,14 +1001,12 @@ function initializeSmoothScrolling() {
         anchor.addEventListener('click', function(e) {
             const href = this.getAttribute('href');
             
-            // Skip if it's just "#"
             if (href === '#' || href === '#!') return;
             
             const targetElement = document.querySelector(href);
             if (targetElement) {
                 e.preventDefault();
                 
-                // Calculate header height for offset
                 const header = document.querySelector('.site-header');
                 const headerHeight = header ? header.offsetHeight : 0;
                 const targetPosition = targetElement.offsetTop - headerHeight - 20;
@@ -1039,7 +1016,6 @@ function initializeSmoothScrolling() {
                     behavior: 'smooth'
                 });
                 
-                // Update URL without jumping
                 history.pushState(null, null, href);
             }
         });
@@ -1047,20 +1023,18 @@ function initializeSmoothScrolling() {
 }
 
 // =========================================
-// Header Scroll Effect - УПРОЩЕННАЯ ВЕРСИЯ
+// Header Scroll Effect
 // =========================================
 function initializeHeaderScrollEffect() {
     const header = document.querySelector('.site-header');
     if (!header) return;
     
-    // Убираем transform из начальных стилей
     header.style.transform = 'none';
     header.style.transition = 'background-color 0.3s ease, box-shadow 0.3s ease';
     
     function updateHeader() {
         const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
         
-        // Только меняем фон, без скрытия хэдера
         if (scrollTop > 100) {
             header.classList.add('scrolled');
         } else {
@@ -1068,7 +1042,6 @@ function initializeHeaderScrollEffect() {
         }
     }
     
-    // Используем throttle для оптимизации
     let ticking = false;
     window.addEventListener('scroll', () => {
         if (!ticking) {
@@ -1080,7 +1053,6 @@ function initializeHeaderScrollEffect() {
         }
     });
     
-    // Initial check
     updateHeader();
 }
 
@@ -1097,20 +1069,17 @@ function initializeNewsletterForm() {
         const email = emailInput.value.trim();
         
         if (email && email.includes('@')) {
-            // Show success state
             const button = this.querySelector('button');
             const originalHTML = button.innerHTML;
             button.innerHTML = '<i class="fas fa-check"></i>';
             button.style.backgroundColor = '#25D366';
             
-            // Reset after 2 seconds
             setTimeout(() => {
                 emailInput.value = '';
                 button.innerHTML = originalHTML;
                 button.style.backgroundColor = '';
             }, 2000);
         } else {
-            // Show error state briefly
             emailInput.style.borderColor = '#ff4444';
             setTimeout(() => {
                 emailInput.style.borderColor = '';
@@ -1137,9 +1106,7 @@ function debounce(func, wait = 20, immediate = true) {
     };
 }
 
-// Initialize some functions with debounce
 window.addEventListener('resize', debounce(() => {
-    // Recalculate FAQ heights on resize
     document.querySelectorAll('.faq-item.active .faq-answer').forEach(answer => {
         answer.style.maxHeight = answer.scrollHeight + 'px';
     });
@@ -1158,7 +1125,6 @@ window.addEventListener('error', function(e) {
 window.addEventListener('load', function() {
     console.log('Page fully loaded');
     
-    // Ensure FAQ is properly initialized after all content is loaded
     setTimeout(() => {
         const faqItems = document.querySelectorAll('.faq-item.active');
         faqItems.forEach(item => {
@@ -1174,13 +1140,9 @@ window.addEventListener('load', function() {
 // НОВЫЕ SEO-ФУНКЦИИ
 // =========================================
 
-/**
- * Проверка структурированных данных
- */
 function initializeStructuredDataValidation() {
     console.log('Validating structured data...');
     
-    // Проверяем наличие всех необходимых schema.org разметок
     const requiredSchemas = [
         'MusicGroup',
         'LocalBusiness',
@@ -1203,7 +1165,6 @@ function initializeStructuredDataValidation() {
         }
     });
     
-    // Проверяем, все ли необходимые схемы присутствуют
     requiredSchemas.forEach(schema => {
         if (!foundSchemas.includes(schema)) {
             console.warn(`Missing schema: ${schema}`);
@@ -1213,16 +1174,11 @@ function initializeStructuredDataValidation() {
     console.log('Found schemas:', foundSchemas);
 }
 
-/**
- * Улучшение мета-тегов
- */
 function initializeMetaTagsEnhancement() {
-    // Добавляем динамические мета-теги для разных страниц
     const path = window.location.pathname;
     const metaDescription = document.querySelector('meta[name="description"]');
     const metaKeywords = document.querySelector('meta[name="keywords"]');
     
-    // Обновляем мета-теги в зависимости от раздела
     if (window.location.hash) {
         const section = window.location.hash.replace('#', '');
         switch(section) {
@@ -1244,11 +1200,7 @@ function initializeMetaTagsEnhancement() {
     }
 }
 
-/**
- * Отслеживание хлебных крошек
- */
 function initializeBreadcrumbTracking() {
-    // Отслеживаем навигацию по странице для аналитики
     const breadcrumbs = document.querySelectorAll('.breadcrumb a, .footer-links a, .nav-links a');
     
     breadcrumbs.forEach(link => {
@@ -1258,7 +1210,6 @@ function initializeBreadcrumbTracking() {
             
             console.log('Navigation tracked:', { text: linkText, href: linkHref });
             
-            // Отправляем событие в Google Analytics если доступно
             if (typeof gtag !== 'undefined') {
                 gtag('event', 'navigation', {
                     'event_category': 'Breadcrumb',
@@ -1270,9 +1221,6 @@ function initializeBreadcrumbTracking() {
     });
 }
 
-/**
- * Мониторинг производительности
- */
 function initializePerformanceMonitoring() {
     if ('performance' in window) {
         window.addEventListener('load', () => {
@@ -1286,7 +1234,6 @@ function initializePerformanceMonitoring() {
                         'DOM Interactive': perfData.domInteractive
                     });
                     
-                    // Отправляем метрики в аналитику
                     if (typeof gtag !== 'undefined') {
                         gtag('event', 'performance', {
                             'event_category': 'Core Web Vitals',
@@ -1300,9 +1247,6 @@ function initializePerformanceMonitoring() {
     }
 }
 
-/**
- * Отслеживание социальных сетей
- */
 function initializeSocialMediaTracking() {
     const socialLinks = document.querySelectorAll('.social-icons a, .platform-icons a');
     
@@ -1313,7 +1257,6 @@ function initializeSocialMediaTracking() {
             
             console.log('Social media click:', { platform, url });
             
-            // Отправляем событие в аналитику
             if (typeof gtag !== 'undefined') {
                 gtag('event', 'social_click', {
                     'event_category': 'Social Media',
@@ -1325,15 +1268,10 @@ function initializeSocialMediaTracking() {
     });
 }
 
-/**
- * Обработка канонических URL
- */
 function initializeCanonicalUrlHandling() {
-    // Проверяем наличие канонической ссылки
     let canonicalLink = document.querySelector('link[rel="canonical"]');
     
     if (!canonicalLink) {
-        // Если нет, создаем
         canonicalLink = document.createElement('link');
         canonicalLink.setAttribute('rel', 'canonical');
         canonicalLink.setAttribute('href', window.location.href.split('#')[0].split('?')[0]);
@@ -1342,33 +1280,21 @@ function initializeCanonicalUrlHandling() {
     }
 }
 
-/**
- * Языковой редирект (для мультиязычности)
- */
 function initializeLanguageRedirect() {
-    // Получаем предпочтительный язык браузера
     const userLanguage = navigator.language || navigator.userLanguage;
     const supportedLanguages = ['en', 'uk', 'ru'];
     const currentLang = document.documentElement.lang || 'en';
     
-    // Проверяем, есть ли поддержка языка пользователя
     if (userLanguage && supportedLanguages.includes(userLanguage.split('-')[0])) {
         const preferredLang = userLanguage.split('-')[0];
         
-        // Если язык отличается от текущего и не на украинской версии
         if (preferredLang !== currentLang && !window.location.pathname.includes('/' + preferredLang)) {
-            // Не делаем автоматический редирект, но предлагаем
             console.log(`User prefers ${preferredLang} language`);
-            
-            // Можно показать уведомление о смене языка
             showLanguageSuggestion(preferredLang);
         }
     }
 }
 
-/**
- * Предложение смены языка
- */
 function showLanguageSuggestion(lang) {
     const langNames = {
         'en': 'English',
@@ -1376,10 +1302,8 @@ function showLanguageSuggestion(lang) {
         'ru': 'Русский'
     };
     
-    // Проверяем, не показывали ли уже
     if (localStorage.getItem('lang_suggestion_shown')) return;
     
-    // Создаем уведомление
     const notification = document.createElement('div');
     notification.className = 'lang-suggestion';
     notification.innerHTML = `
@@ -1394,7 +1318,6 @@ function showLanguageSuggestion(lang) {
     
     document.body.appendChild(notification);
     
-    // Добавляем стили
     const style = document.createElement('style');
     style.textContent = `
         .lang-suggestion {
@@ -1443,12 +1366,10 @@ function showLanguageSuggestion(lang) {
     `;
     document.head.appendChild(style);
     
-    // Обработчики
     const yesBtn = notification.querySelector('.lang-yes');
     const noBtn = notification.querySelector('.lang-no');
     
     yesBtn.addEventListener('click', () => {
-        // Редирект на соответствующую языковую версию
         window.location.href = `/${lang}/`;
         localStorage.setItem('lang_suggestion_shown', 'true');
     });
@@ -1458,7 +1379,6 @@ function showLanguageSuggestion(lang) {
         localStorage.setItem('lang_suggestion_shown', 'true');
     });
     
-    // Автоматически скрываем через 10 секунд
     setTimeout(() => {
         if (notification.parentNode) {
             notification.remove();
@@ -1466,11 +1386,7 @@ function showLanguageSuggestion(lang) {
     }, 10000);
 }
 
-/**
- * Отслеживание 404 ошибок
- */
 function initialize404Tracking() {
-    // Проверяем, является ли страница 404
     const is404 = document.querySelector('.error-404, .not-found') || 
                   document.title.includes('404') || 
                   document.body.innerHTML.includes('404');
@@ -1478,7 +1394,6 @@ function initialize404Tracking() {
     if (is404) {
         console.warn('404 Page Not Found:', window.location.href);
         
-        // Отправляем в аналитику
         if (typeof gtag !== 'undefined') {
             gtag('event', '404_error', {
                 'event_category': 'Error',
@@ -1487,7 +1402,6 @@ function initialize404Tracking() {
             });
         }
         
-        // Предлагаем перейти на главную
         setTimeout(() => {
             if (confirm('Page not found. Go to homepage?')) {
                 window.location.href = '/';
@@ -1496,16 +1410,11 @@ function initialize404Tracking() {
     }
 }
 
-/**
- * Интеграция с Search Console
- */
 function initializeSearchConsoleIntegration() {
-    // Добавляем мета-тег верификации если его нет
     if (!document.querySelector('meta[name="google-site-verification"]')) {
         console.warn('Google Site Verification meta tag not found');
     }
     
-    // Проверяем наличие sitemap
     fetch('/sitemap.xml')
         .then(response => {
             if (response.ok) {
@@ -1518,7 +1427,6 @@ function initializeSearchConsoleIntegration() {
             console.warn('❌ Sitemap.xml check failed');
         });
     
-    // Проверяем robots.txt
     fetch('/robots.txt')
         .then(response => {
             if (response.ok) {
@@ -1532,9 +1440,6 @@ function initializeSearchConsoleIntegration() {
         });
 }
 
-/**
- * Валидация Schema Markup
- */
 function initializeSchemaMarkupValidation() {
     const scripts = document.querySelectorAll('script[type="application/ld+json"]');
     
@@ -1542,7 +1447,6 @@ function initializeSchemaMarkupValidation() {
         try {
             const data = JSON.parse(script.textContent);
             
-            // Проверяем обязательные поля
             if (!data['@context']) {
                 console.warn(`Schema #${index + 1}: Missing @context`);
             }
@@ -1550,7 +1454,6 @@ function initializeSchemaMarkupValidation() {
                 console.warn(`Schema #${index + 1}: Missing @type`);
             }
             
-            // Проверяем специфичные для типа поля
             switch(data['@type']) {
                 case 'MusicGroup':
                     if (!data.name) console.warn('MusicGroup: Missing name');
@@ -1572,12 +1475,8 @@ function initializeSchemaMarkupValidation() {
     });
 }
 
-/**
- * Мониторинг Core Web Vitals
- */
 function initializeCoreWebVitals() {
     if ('PerformanceObserver' in window) {
-        // LCP (Largest Contentful Paint)
         try {
             const lcpObserver = new PerformanceObserver((entryList) => {
                 const entries = entryList.getEntries();
@@ -1597,7 +1496,6 @@ function initializeCoreWebVitals() {
             console.log('LCP monitoring not supported');
         }
         
-        // FID (First Input Delay)
         try {
             const fidObserver = new PerformanceObserver((entryList) => {
                 const entries = entryList.getEntries();
@@ -1618,7 +1516,6 @@ function initializeCoreWebVitals() {
             console.log('FID monitoring not supported');
         }
         
-        // CLS (Cumulative Layout Shift)
         try {
             const clsObserver = new PerformanceObserver((entryList) => {
                 const entries = entryList.getEntries();
@@ -1645,18 +1542,13 @@ function initializeCoreWebVitals() {
     }
 }
 
-/**
- * Автоматическое обновление sitemap
- */
 function initializeSitemapUpdater() {
-    // Проверяем, нужно ли обновить sitemap (раз в неделю)
     const lastUpdate = localStorage.getItem('sitemap_last_update');
     const oneWeek = 7 * 24 * 60 * 60 * 1000;
     
     if (!lastUpdate || (Date.now() - parseInt(lastUpdate)) > oneWeek) {
         console.log('Sitemap should be updated');
         
-        // Здесь можно отправить запрос на сервер для генерации sitemap
         fetch('/api/generate-sitemap', { method: 'POST' })
             .then(response => {
                 if (response.ok) {
@@ -1670,14 +1562,10 @@ function initializeSitemapUpdater() {
     }
 }
 
-/**
- * Проверка robots.txt
- */
 function initializeRobotsTxtChecker() {
     fetch('/robots.txt')
         .then(response => response.text())
         .then(content => {
-            // Проверяем наличие важных директив
             const requiredDirectives = [
                 'User-agent: *',
                 'Allow: /',
@@ -1690,7 +1578,6 @@ function initializeRobotsTxtChecker() {
                 }
             });
             
-            // Проверяем правильность URL sitemap
             const sitemapMatch = content.match(/Sitemap:\s*(.+)/);
             if (sitemapMatch) {
                 const sitemapUrl = sitemapMatch[1].trim();
