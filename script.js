@@ -29,6 +29,21 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeRepertoireTabs();
     initializeAudioPlayers();
     
+    // ===== НОВЫЕ SEO-ФУНКЦИИ =====
+    initializeStructuredDataValidation();
+    initializeMetaTagsEnhancement();
+    initializeBreadcrumbTracking();
+    initializePerformanceMonitoring();
+    initializeSocialMediaTracking();
+    initializeCanonicalUrlHandling();
+    initializeLanguageRedirect();
+    initialize404Tracking();
+    initializeSearchConsoleIntegration();
+    initializeSchemaMarkupValidation();
+    initializeCoreWebVitals();
+    initializeSitemapUpdater();
+    initializeRobotsTxtChecker();
+    
     console.log('Shining Strings - Initialization complete');
 });
 
@@ -1154,3 +1169,537 @@ window.addEventListener('load', function() {
         });
     }, 100);
 });
+
+// =========================================
+// НОВЫЕ SEO-ФУНКЦИИ
+// =========================================
+
+/**
+ * Проверка структурированных данных
+ */
+function initializeStructuredDataValidation() {
+    console.log('Validating structured data...');
+    
+    // Проверяем наличие всех необходимых schema.org разметок
+    const requiredSchemas = [
+        'MusicGroup',
+        'LocalBusiness',
+        'ProfessionalService',
+        'FAQPage',
+        'BreadcrumbList'
+    ];
+    
+    const scripts = document.querySelectorAll('script[type="application/ld+json"]');
+    const foundSchemas = [];
+    
+    scripts.forEach(script => {
+        try {
+            const data = JSON.parse(script.textContent);
+            if (data['@type']) {
+                foundSchemas.push(data['@type']);
+            }
+        } catch (e) {
+            console.error('Invalid JSON-LD:', e);
+        }
+    });
+    
+    // Проверяем, все ли необходимые схемы присутствуют
+    requiredSchemas.forEach(schema => {
+        if (!foundSchemas.includes(schema)) {
+            console.warn(`Missing schema: ${schema}`);
+        }
+    });
+    
+    console.log('Found schemas:', foundSchemas);
+}
+
+/**
+ * Улучшение мета-тегов
+ */
+function initializeMetaTagsEnhancement() {
+    // Добавляем динамические мета-теги для разных страниц
+    const path = window.location.pathname;
+    const metaDescription = document.querySelector('meta[name="description"]');
+    const metaKeywords = document.querySelector('meta[name="keywords"]');
+    
+    // Обновляем мета-теги в зависимости от раздела
+    if (window.location.hash) {
+        const section = window.location.hash.replace('#', '');
+        switch(section) {
+            case 'services':
+                if (metaDescription) {
+                    metaDescription.setAttribute('content', 
+                        'Professional violin services for weddings, corporate events, and private celebrations in Muskoka and Toronto GTA. Book Anna Bobylyova for your special event.'
+                    );
+                }
+                break;
+            case 'repertoire':
+                if (metaDescription) {
+                    metaDescription.setAttribute('content', 
+                        'Extensive violin repertoire from classical masterpieces to modern hits. Custom arrangements available for your special event.'
+                    );
+                }
+                break;
+        }
+    }
+}
+
+/**
+ * Отслеживание хлебных крошек
+ */
+function initializeBreadcrumbTracking() {
+    // Отслеживаем навигацию по странице для аналитики
+    const breadcrumbs = document.querySelectorAll('.breadcrumb a, .footer-links a, .nav-links a');
+    
+    breadcrumbs.forEach(link => {
+        link.addEventListener('click', function(e) {
+            const linkText = this.textContent.trim();
+            const linkHref = this.getAttribute('href');
+            
+            console.log('Navigation tracked:', { text: linkText, href: linkHref });
+            
+            // Отправляем событие в Google Analytics если доступно
+            if (typeof gtag !== 'undefined') {
+                gtag('event', 'navigation', {
+                    'event_category': 'Breadcrumb',
+                    'event_label': linkText,
+                    'value': 1
+                });
+            }
+        });
+    });
+}
+
+/**
+ * Мониторинг производительности
+ */
+function initializePerformanceMonitoring() {
+    if ('performance' in window) {
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                const perfData = performance.getEntriesByType('navigation')[0];
+                if (perfData) {
+                    console.log('Performance Metrics:', {
+                        'DOM Load Time': perfData.domContentLoadedEventEnd - perfData.domContentLoadedEventStart,
+                        'Page Load Time': perfData.loadEventEnd - perfData.loadEventStart,
+                        'Time to First Byte': perfData.responseStart - perfData.requestStart,
+                        'DOM Interactive': perfData.domInteractive
+                    });
+                    
+                    // Отправляем метрики в аналитику
+                    if (typeof gtag !== 'undefined') {
+                        gtag('event', 'performance', {
+                            'event_category': 'Core Web Vitals',
+                            'event_label': 'page_load',
+                            'value': Math.round(perfData.loadEventEnd)
+                        });
+                    }
+                }
+            }, 0);
+        });
+    }
+}
+
+/**
+ * Отслеживание социальных сетей
+ */
+function initializeSocialMediaTracking() {
+    const socialLinks = document.querySelectorAll('.social-icons a, .platform-icons a');
+    
+    socialLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            const platform = this.getAttribute('aria-label') || this.textContent.trim();
+            const url = this.getAttribute('href');
+            
+            console.log('Social media click:', { platform, url });
+            
+            // Отправляем событие в аналитику
+            if (typeof gtag !== 'undefined') {
+                gtag('event', 'social_click', {
+                    'event_category': 'Social Media',
+                    'event_label': platform,
+                    'value': 1
+                });
+            }
+        });
+    });
+}
+
+/**
+ * Обработка канонических URL
+ */
+function initializeCanonicalUrlHandling() {
+    // Проверяем наличие канонической ссылки
+    let canonicalLink = document.querySelector('link[rel="canonical"]');
+    
+    if (!canonicalLink) {
+        // Если нет, создаем
+        canonicalLink = document.createElement('link');
+        canonicalLink.setAttribute('rel', 'canonical');
+        canonicalLink.setAttribute('href', window.location.href.split('#')[0].split('?')[0]);
+        document.head.appendChild(canonicalLink);
+        console.log('Canonical URL added:', canonicalLink.getAttribute('href'));
+    }
+}
+
+/**
+ * Языковой редирект (для мультиязычности)
+ */
+function initializeLanguageRedirect() {
+    // Получаем предпочтительный язык браузера
+    const userLanguage = navigator.language || navigator.userLanguage;
+    const supportedLanguages = ['en', 'uk', 'ru'];
+    const currentLang = document.documentElement.lang || 'en';
+    
+    // Проверяем, есть ли поддержка языка пользователя
+    if (userLanguage && supportedLanguages.includes(userLanguage.split('-')[0])) {
+        const preferredLang = userLanguage.split('-')[0];
+        
+        // Если язык отличается от текущего и не на украинской версии
+        if (preferredLang !== currentLang && !window.location.pathname.includes('/' + preferredLang)) {
+            // Не делаем автоматический редирект, но предлагаем
+            console.log(`User prefers ${preferredLang} language`);
+            
+            // Можно показать уведомление о смене языка
+            showLanguageSuggestion(preferredLang);
+        }
+    }
+}
+
+/**
+ * Предложение смены языка
+ */
+function showLanguageSuggestion(lang) {
+    const langNames = {
+        'en': 'English',
+        'uk': 'Українська',
+        'ru': 'Русский'
+    };
+    
+    // Проверяем, не показывали ли уже
+    if (localStorage.getItem('lang_suggestion_shown')) return;
+    
+    // Создаем уведомление
+    const notification = document.createElement('div');
+    notification.className = 'lang-suggestion';
+    notification.innerHTML = `
+        <div class="lang-suggestion-content">
+            <p>🌐 Would you prefer ${langNames[lang]}?</p>
+            <div class="lang-suggestion-buttons">
+                <button class="lang-yes" data-lang="${lang}">Yes</button>
+                <button class="lang-no">No</button>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    // Добавляем стили
+    const style = document.createElement('style');
+    style.textContent = `
+        .lang-suggestion {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            z-index: 1000;
+            animation: slideUp 0.3s ease;
+        }
+        .lang-suggestion-content {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .lang-suggestion-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        .lang-suggestion button {
+            padding: 5px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .lang-yes {
+            background: #25D366;
+            color: white;
+        }
+        .lang-no {
+            background: #f0f0f0;
+        }
+        @keyframes slideUp {
+            from {
+                transform: translateY(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+    `;
+    document.head.appendChild(style);
+    
+    // Обработчики
+    const yesBtn = notification.querySelector('.lang-yes');
+    const noBtn = notification.querySelector('.lang-no');
+    
+    yesBtn.addEventListener('click', () => {
+        // Редирект на соответствующую языковую версию
+        window.location.href = `/${lang}/`;
+        localStorage.setItem('lang_suggestion_shown', 'true');
+    });
+    
+    noBtn.addEventListener('click', () => {
+        notification.remove();
+        localStorage.setItem('lang_suggestion_shown', 'true');
+    });
+    
+    // Автоматически скрываем через 10 секунд
+    setTimeout(() => {
+        if (notification.parentNode) {
+            notification.remove();
+        }
+    }, 10000);
+}
+
+/**
+ * Отслеживание 404 ошибок
+ */
+function initialize404Tracking() {
+    // Проверяем, является ли страница 404
+    const is404 = document.querySelector('.error-404, .not-found') || 
+                  document.title.includes('404') || 
+                  document.body.innerHTML.includes('404');
+    
+    if (is404) {
+        console.warn('404 Page Not Found:', window.location.href);
+        
+        // Отправляем в аналитику
+        if (typeof gtag !== 'undefined') {
+            gtag('event', '404_error', {
+                'event_category': 'Error',
+                'event_label': window.location.href,
+                'value': 1
+            });
+        }
+        
+        // Предлагаем перейти на главную
+        setTimeout(() => {
+            if (confirm('Page not found. Go to homepage?')) {
+                window.location.href = '/';
+            }
+        }, 1000);
+    }
+}
+
+/**
+ * Интеграция с Search Console
+ */
+function initializeSearchConsoleIntegration() {
+    // Добавляем мета-тег верификации если его нет
+    if (!document.querySelector('meta[name="google-site-verification"]')) {
+        console.warn('Google Site Verification meta tag not found');
+    }
+    
+    // Проверяем наличие sitemap
+    fetch('/sitemap.xml')
+        .then(response => {
+            if (response.ok) {
+                console.log('✅ Sitemap.xml found and accessible');
+            } else {
+                console.warn('❌ Sitemap.xml not found or inaccessible');
+            }
+        })
+        .catch(() => {
+            console.warn('❌ Sitemap.xml check failed');
+        });
+    
+    // Проверяем robots.txt
+    fetch('/robots.txt')
+        .then(response => {
+            if (response.ok) {
+                console.log('✅ Robots.txt found and accessible');
+            } else {
+                console.warn('❌ Robots.txt not found or inaccessible');
+            }
+        })
+        .catch(() => {
+            console.warn('❌ Robots.txt check failed');
+        });
+}
+
+/**
+ * Валидация Schema Markup
+ */
+function initializeSchemaMarkupValidation() {
+    const scripts = document.querySelectorAll('script[type="application/ld+json"]');
+    
+    scripts.forEach((script, index) => {
+        try {
+            const data = JSON.parse(script.textContent);
+            
+            // Проверяем обязательные поля
+            if (!data['@context']) {
+                console.warn(`Schema #${index + 1}: Missing @context`);
+            }
+            if (!data['@type']) {
+                console.warn(`Schema #${index + 1}: Missing @type`);
+            }
+            
+            // Проверяем специфичные для типа поля
+            switch(data['@type']) {
+                case 'MusicGroup':
+                    if (!data.name) console.warn('MusicGroup: Missing name');
+                    if (!data.description) console.warn('MusicGroup: Missing description');
+                    break;
+                case 'LocalBusiness':
+                    if (!data.address) console.warn('LocalBusiness: Missing address');
+                    if (!data.telephone) console.warn('LocalBusiness: Missing telephone');
+                    break;
+                case 'FAQPage':
+                    if (!data.mainEntity || !Array.isArray(data.mainEntity)) {
+                        console.warn('FAQPage: Missing or invalid mainEntity');
+                    }
+                    break;
+            }
+        } catch (e) {
+            console.error(`Schema #${index + 1} is invalid JSON:`, e);
+        }
+    });
+}
+
+/**
+ * Мониторинг Core Web Vitals
+ */
+function initializeCoreWebVitals() {
+    if ('PerformanceObserver' in window) {
+        // LCP (Largest Contentful Paint)
+        try {
+            const lcpObserver = new PerformanceObserver((entryList) => {
+                const entries = entryList.getEntries();
+                const lastEntry = entries[entries.length - 1];
+                console.log('LCP:', lastEntry.startTime / 1000, 'seconds');
+                
+                if (typeof gtag !== 'undefined') {
+                    gtag('event', 'core_web_vital', {
+                        'event_category': 'LCP',
+                        'event_label': 'Largest Contentful Paint',
+                        'value': Math.round(lastEntry.startTime)
+                    });
+                }
+            });
+            lcpObserver.observe({ type: 'largest-contentful-paint', buffered: true });
+        } catch (e) {
+            console.log('LCP monitoring not supported');
+        }
+        
+        // FID (First Input Delay)
+        try {
+            const fidObserver = new PerformanceObserver((entryList) => {
+                const entries = entryList.getEntries();
+                entries.forEach(entry => {
+                    console.log('FID:', entry.duration, 'ms');
+                    
+                    if (typeof gtag !== 'undefined') {
+                        gtag('event', 'core_web_vital', {
+                            'event_category': 'FID',
+                            'event_label': 'First Input Delay',
+                            'value': Math.round(entry.duration)
+                        });
+                    }
+                });
+            });
+            fidObserver.observe({ type: 'first-input', buffered: true });
+        } catch (e) {
+            console.log('FID monitoring not supported');
+        }
+        
+        // CLS (Cumulative Layout Shift)
+        try {
+            const clsObserver = new PerformanceObserver((entryList) => {
+                const entries = entryList.getEntries();
+                let clsValue = 0;
+                entries.forEach(entry => {
+                    if (!entry.hadRecentInput) {
+                        clsValue += entry.value;
+                    }
+                });
+                console.log('CLS:', clsValue);
+                
+                if (typeof gtag !== 'undefined') {
+                    gtag('event', 'core_web_vital', {
+                        'event_category': 'CLS',
+                        'event_label': 'Cumulative Layout Shift',
+                        'value': clsValue
+                    });
+                }
+            });
+            clsObserver.observe({ type: 'layout-shift', buffered: true });
+        } catch (e) {
+            console.log('CLS monitoring not supported');
+        }
+    }
+}
+
+/**
+ * Автоматическое обновление sitemap
+ */
+function initializeSitemapUpdater() {
+    // Проверяем, нужно ли обновить sitemap (раз в неделю)
+    const lastUpdate = localStorage.getItem('sitemap_last_update');
+    const oneWeek = 7 * 24 * 60 * 60 * 1000;
+    
+    if (!lastUpdate || (Date.now() - parseInt(lastUpdate)) > oneWeek) {
+        console.log('Sitemap should be updated');
+        
+        // Здесь можно отправить запрос на сервер для генерации sitemap
+        fetch('/api/generate-sitemap', { method: 'POST' })
+            .then(response => {
+                if (response.ok) {
+                    localStorage.setItem('sitemap_last_update', Date.now().toString());
+                    console.log('Sitemap updated successfully');
+                }
+            })
+            .catch(() => {
+                console.log('Sitemap auto-update failed - manual update required');
+            });
+    }
+}
+
+/**
+ * Проверка robots.txt
+ */
+function initializeRobotsTxtChecker() {
+    fetch('/robots.txt')
+        .then(response => response.text())
+        .then(content => {
+            // Проверяем наличие важных директив
+            const requiredDirectives = [
+                'User-agent: *',
+                'Allow: /',
+                'Sitemap:'
+            ];
+            
+            requiredDirectives.forEach(directive => {
+                if (!content.includes(directive)) {
+                    console.warn(`robots.txt missing directive: ${directive}`);
+                }
+            });
+            
+            // Проверяем правильность URL sitemap
+            const sitemapMatch = content.match(/Sitemap:\s*(.+)/);
+            if (sitemapMatch) {
+                const sitemapUrl = sitemapMatch[1].trim();
+                if (!sitemapUrl.startsWith('https://www.shiningstrings.com')) {
+                    console.warn('Sitemap URL in robots.txt might be incorrect:', sitemapUrl);
+                }
+            }
+        })
+        .catch(() => {
+            console.warn('Could not verify robots.txt');
+        });
+}
